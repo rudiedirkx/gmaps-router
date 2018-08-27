@@ -1,0 +1,20 @@
+{
+    "name": "rdx/gmaps-router",
+    "type": "project",
+    "require": {
+        "rdx/db": "^1.12"
+    },
+    "autoload": {
+        "files": ["inc.functions.php"],
+        "psr-4": {
+            "rdx\\grouter\\": "src/"
+        }
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Rudie Dirkx",
+            "email": "github@hotblocks.nl"
+        }
+    ]
+}

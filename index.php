@@ -1,6 +1,22 @@
 <?php
 
-require 'env.php';
+use rdx\grouter\Route;
+
+require __DIR__ . '/inc.bootstrap.php';
+
+if ( isset($_POST['points']) ) {
+	if ( $points = json_decode($_POST['points'], true) ) {
+		$secret = Route::save($points);
+
+		header('Location: ./?load=' . $secret);
+	}
+	else {
+		header('Location: ./');
+	}
+	exit;
+}
+
+$route = Route::load(@$_GET['load']);
 
 ?>
 <!doctype html>
@@ -27,22 +43,37 @@ body {
 #stats dl {
 	margin: 0;
 }
+#output {
+	position: absolute;
+	width: 300px;
+	height: 300px;
+	top: 50vh;
+	left: 50vw;
+	margin: -150px 0 0 -150px;
+}
+#output:not(:focus) {
+	top: -200px;
+}
 </style>
 </head>
 
 <body>
 <div id="map"></div>
 
+<form method="post" action>
+	<textarea id="output" name="points"></textarea>
+</form>
+
 <div id="stats">
 	<button id="undo">Undo</button>
 	<button id="export">Export</button>
+	<button id="save">Save</button>
 	<dl>
 		<dt>Points</dt>
 		<dd><span id="stat-points">0</span></dd>
 		<dt>Distance</dt>
 		<dd><span id="stat-distance">0</span> km</dd>
 	</dl>
-	<textarea id="output"></textarea>
 </div>
 
 <script>
@@ -50,11 +81,12 @@ var $map = document.querySelector('#map');
 var $output = document.querySelector('#output');
 var $undo = document.querySelector('#undo');
 var $export = document.querySelector('#export');
+var $save = document.querySelector('#save');
 var $points = document.querySelector('#stat-points');
 var $distance = document.querySelector('#stat-distance');
 
 var map;
-var points = JSON.parse(sessionStorage.points || '[]');
+var points = <?= $route ? $route->points : "JSON.parse(sessionStorage.points || '[]')" ?>;
 var line;
 
 function undoPoint() {
@@ -168,6 +200,13 @@ $undo.onclick = function(e) {
 
 $export.onclick = function(e) {
 	$output.value = sessionStorage.points;
+	$output.focus();
+	$output.select();
+};
+
+$save.onclick = function(e) {
+	$output.value = sessionStorage.points;
+	$output.form.submit();
 };
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=<?= ROUTER_GMAPS_API_KEY ?>&libraries=drawing,geometry&callback=init" async defer></script>
