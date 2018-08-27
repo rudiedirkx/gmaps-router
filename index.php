@@ -25,7 +25,7 @@ $route = Route::load(@$_GET['load']);
 <head>
 <meta charset="utf-8" />
 <link href="favicon.ico" rel="shortcut icon" />
-<title>Gmaps router</title>
+<title><? if ($route): ?><?= html($route->name) ?> - <? endif ?>Gmaps router</title>
 <style>
 body {
 	margin: 10px;
