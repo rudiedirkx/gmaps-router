@@ -14,12 +14,13 @@ class Route extends db_generic_model {
 		}
 	}
 
-	static public function save( array $points ) {
+	static public function save( $name, array $points ) {
 		$secret = rand_string(10);
 		static::insert([
 			'secret' => $secret,
 			'created_by_ip' => $_SERVER['REMOTE_ADDR'],
 			'created_on' => time(),
+			'name' => $name,
 			'points' => json_encode($points),
 		]);
 		return $secret;

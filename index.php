@@ -4,9 +4,9 @@ use rdx\grouter\Route;
 
 require __DIR__ . '/inc.bootstrap.php';
 
-if ( isset($_POST['points']) ) {
+if ( isset($_POST['points'], $_POST['name']) ) {
 	if ( $points = json_decode($_POST['points'], true) ) {
-		$secret = Route::save($points);
+		$secret = Route::save($_POST['name'], $points);
 
 		header('Location: ./?load=' . $secret);
 	}
@@ -63,13 +63,14 @@ body {
 <div id="map"></div>
 
 <form method="post" action>
+	<input type="hidden" name="name" />
 	<textarea id="output" name="points"></textarea>
 </form>
 
 <div id="stats">
 	<button id="undo">Undo</button>
 	<button id="export">Export</button>
-	<button id="save">Save</button>
+	<button id="save" hidden>Save</button>
 	<dl>
 		<dt>Points</dt>
 		<dd><span id="stat-points">0</span></dd>
@@ -107,6 +108,8 @@ function calcStats() {
 
 	$points.textContent = points.length;
 	$distance.textContent = distance;
+
+	$save.hidden = points.length < 3;
 }
 
 function drawLines() {
@@ -207,8 +210,12 @@ $export.onclick = function(e) {
 };
 
 $save.onclick = function(e) {
-	$output.value = sessionStorage.points;
-	$output.form.submit();
+	var name = prompt('Name:', '');
+	if ( name && name.trim() ) {
+		$output.form.elements.name.value = name;
+		$output.value = sessionStorage.points;
+		$output.form.submit();
+	}
 };
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=<?= ROUTER_GMAPS_API_KEY ?>&libraries=drawing,geometry&callback=init" async defer></script>
