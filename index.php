@@ -23,6 +23,8 @@ $route = Route::load(@$_GET['load']);
 <html>
 
 <head>
+<meta charset="utf-8" />
+<link href="favicon.ico" rel="shortcut icon" />
 <title>Gmaps router</title>
 <style>
 body {
