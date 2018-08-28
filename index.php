@@ -17,6 +17,7 @@ if ( isset($_POST['points'], $_POST['name']) ) {
 }
 
 $route = Route::load(@$_GET['load']);
+$screenshot = isset($_GET['screenshot']);
 
 ?>
 <!doctype html>
@@ -57,6 +58,23 @@ body {
 	top: -200px;
 }
 </style>
+<?if ($screenshot): ?>
+	<style>
+	body {
+		margin: 0;
+		overflow: hidden;
+	}
+	#map {
+		width: calc(100vw);
+		height: calc(100vh);
+	}
+	#stats,
+	form,
+	.gm-style > * + * {
+		display: none;
+	}
+	</style>
+<? endif ?>
 </head>
 
 <body>
@@ -132,7 +150,16 @@ function drawLines() {
 	sessionStorage.points = JSON.stringify(points);
 }
 
+function getBounds(points) {
+	if ( points.length == 0 ) return;
+	var bounds = new google.maps.LatLngBounds();
+	points.forEach(point => bounds.extend(point));
+	return bounds;
+}
+
 function init() {
+	var bounds = getBounds(points);
+
 	map = new google.maps.Map($map, {
 		center: {lat: 51.44, lng: 5.48},
 		zoom: 13,
@@ -144,6 +171,7 @@ function init() {
 			// {featureType: 'road', stylers: [{visibility: 'off'}]},
 		],
 	});
+	bounds && map.fitBounds(bounds);
 
 	var untilesloaded = google.maps.event.addListener(map, 'tilesloaded', function(e) {
 		line || drawLines();
