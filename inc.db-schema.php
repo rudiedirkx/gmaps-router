@@ -1,7 +1,7 @@
 <?php
 
 return [
-	'version' => 2,
+	'version' => 3,
 	'tables' => [
 		'routes' => [
 			'id' => ['pk' => true],
@@ -9,7 +9,7 @@ return [
 			'created_by_ip',
 			'created_on' => ['unsigned' => true],
 			'name',
-			'points' => ['type' => 'text'],
+			'routes' => ['type' => 'text'],
 		],
 	],
 ];

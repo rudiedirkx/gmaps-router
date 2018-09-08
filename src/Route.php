@@ -8,6 +8,19 @@ class Route extends db_generic_model {
 
 	static public $_table = 'routes';
 
+	public function init() {
+		if ( $this->points && !$this->routes ) {
+			$this->update([
+				'points' => null,
+				'routes' => "[$this->points]",
+			]);
+		}
+	}
+
+	protected function get_routes_array() {
+		return json_decode($this->routes, true) ?: [[]];
+	}
+
 	static public function load( $secret ) {
 		if ( $secret ) {
 			return static::first(['secret' => $secret]);
