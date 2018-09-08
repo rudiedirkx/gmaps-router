@@ -106,7 +106,8 @@ body {
 	<button id="save" hidden>Save</button>
 	<div id="built-stats"></div>
 	<template>
-		<dl style="--color: COLOR;">
+		<dl style="--color: COLOR">
+			<button class="copy">Copy</button>
 			<dt>Points</dt>
 			<dd><span class="stat-points">0</span></dd>
 			<dt>Distance</dt>
@@ -125,6 +126,7 @@ class UI {
 		this.activeRoute = 0;
 		this.points = points;
 		this.routes = null;
+		this.zIndex = 1;
 
 		this.$$stats = [];
 		this.$$points = [];
@@ -170,7 +172,7 @@ class UI {
 		this.$$points = document.querySelectorAll('.stat-points');
 		this.$$distance = document.querySelectorAll('.stat-distance');
 
-		this.selectRoute();
+		setTimeout(() => this.selectRoute());
 	}
 
 	selectRoute(index) {
@@ -180,6 +182,8 @@ class UI {
 
 		[].forEach.call(document.querySelectorAll('.selected'), el => el.classList.remove('selected'));
 		this.$$stats[this.activeRoute].classList.add('selected');
+
+		this.routes[this.activeRoute].line.set('zIndex', ++this.zIndex);
 	}
 
 	addPoint(point) {
@@ -206,8 +210,7 @@ class UI {
 		this.routes.forEach(route => route.recolor());
 	}
 
-	addRoute() {
-		var route = this.makeRoute();
+	addRoute(route) {
 		this.routes.push(route);
 
 		this.activeRoute = this.routes.length - 1;
@@ -216,6 +219,16 @@ class UI {
 		route.init();
 		this.drawRoutes();
 		this.remember();
+	}
+
+	addNewRoute() {
+		this.addRoute(this.makeRoute([]));
+	}
+
+	copyRoute(index) {
+		var fromRoute = this.routes[index];
+		var points = JSON.parse(JSON.stringify(fromRoute.points));
+		this.addRoute(this.makeRoute(points));
 	}
 
 	remember() {
@@ -262,8 +275,13 @@ class UI {
 		};
 
 		this.$builtStats.onclick = e => {
+			var copy = e.target.closest('.copy');
 			var dl = e.target.closest('dl');
-			if (dl) {
+			if (copy) {
+				var index = [].indexOf.call(dl.parentNode.children, dl);
+				this.copyRoute(index);
+			}
+			else if (dl) {
 				var index = [].indexOf.call(dl.parentNode.children, dl);
 				this.selectRoute(index);
 			}
@@ -272,7 +290,7 @@ class UI {
 		this.$addRoute.onclick = e => {
 			e.preventDefault();
 
-			this.addRoute();
+			this.addNewRoute();
 		};
 
 		// this.$save.onclick = function(e) {
@@ -319,7 +337,7 @@ class UI {
 	}
 
 	makeRoute(points) {
-		return new Route(this, points || []);
+		return new Route(this, points);
 	}
 }
 
