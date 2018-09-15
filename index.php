@@ -117,7 +117,7 @@ body {
 </div>
 
 <script>
-const COLORS = ['#ff0000', '#00ff00', '#0000ff'];
+const COLORS = ['#ff0000', '#00ff00', '#0000ff', '#ff00ff', '#00ffff'];
 
 class UI {
 	constructor(el, points) {
@@ -381,7 +381,7 @@ class Route {
 	}
 
 	get color() {
-		return COLORS[this.index];
+		return COLORS[this.index % COLORS.length];
 	}
 }
 
