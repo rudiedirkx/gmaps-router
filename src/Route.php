@@ -34,7 +34,7 @@ class Route extends db_generic_model {
 			'created_by_ip' => $_SERVER['REMOTE_ADDR'],
 			'created_on' => time(),
 			'name' => $name,
-			'points' => json_encode($points),
+			'routes' => json_encode($points),
 		]);
 		return $secret;
 	}

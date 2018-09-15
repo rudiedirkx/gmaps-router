@@ -102,7 +102,7 @@ body {
 <div id="stats">
 	<button id="add-route">Add route</button>
 	<button id="undo">Undo</button>
-	<button id="export">Export</button>
+	<!-- <button id="export">Export</button> -->
 	<button id="save" hidden>Save</button>
 	<div id="built-stats"></div>
 	<template>
@@ -158,9 +158,10 @@ class UI {
 
 			this.$$points[i].textContent = route.points.length;
 			this.$$distance[i].textContent = distance;
-
-			// this.$save.hidden = points.length < 3;
 		});
+
+		var canSave = this.routes[0].points.length > 1;
+		this.$save.hidden = !canSave;
 	}
 
 	buildStats() {
@@ -269,6 +270,9 @@ class UI {
 		this.$builtStats = document.querySelector('#built-stats');
 		this.$addRoute = document.querySelector('#add-route');
 		this.$save = document.querySelector('#save');
+		this.$output = document.querySelector('#output');
+
+		console.log(this);
 
 		this.$undo.onclick = e => {
 			this.undoPoint();
@@ -293,15 +297,15 @@ class UI {
 			this.addNewRoute();
 		};
 
-		// this.$save.onclick = function(e) {
-		// 	e.preventDefault();
-		// 	var name = prompt('Name:', '');
-		// 	if ( name && name.trim() ) {
-		// 		$output.form.elements.name.value = name;
-		// 		$output.value = sessionStorage.points;
-		// 		$output.form.submit();
-		// 	}
-		// };
+		this.$save.onclick = e => {
+			e.preventDefault();
+			var name = prompt('Name:', '');
+			if ( name && name.trim() ) {
+				this.$output.form.elements.name.value = name;
+				this.$output.value = sessionStorage.points;
+				this.$output.form.submit();
+			}
+		};
 	}
 
 	makeBounds() {
