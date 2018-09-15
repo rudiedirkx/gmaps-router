@@ -2,7 +2,7 @@
     "name": "rdx/gmaps-router",
     "type": "project",
     "require": {
-        "rdx/db": "^1.12"
+        "rdx/db": "^1.13"
     },
     "autoload": {
         "files": ["inc.functions.php"],
