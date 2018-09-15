@@ -16,7 +16,7 @@ if ( isset($_POST['points'], $_POST['name']) ) {
 	exit;
 }
 
-$route = Route::load(@$_GET['load']);
+$routes = Route::load(explode(',', $_GET['load'] ?? ''));
 $screenshot = isset($_GET['screenshot']);
 
 ?>
@@ -26,7 +26,7 @@ $screenshot = isset($_GET['screenshot']);
 <head>
 <meta charset="utf-8" />
 <link href="favicon.ico" rel="shortcut icon" />
-<title><? if ($route): ?><?= html($route->name) ?> - <? endif ?>Gmaps router</title>
+<title><? if ($routes): ?><?= html(implode(', ', $routes)) ?> - <? endif ?>Gmaps router</title>
 <style>
 body {
 	margin: 10px;
@@ -391,7 +391,7 @@ class Route {
 
 var ui = new UI(
 	document.querySelector('#map'),
-	<?= $route ? json_encode($route->routes_array) : "JSON.parse(sessionStorage.points || '[[]]')" ?>
+	<?= $routes ? json_encode(call_user_func_array('array_merge', array_column($routes, 'routes_array'))) : "JSON.parse(sessionStorage.points || '[[]]')" ?>
 );
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=<?= ROUTER_GMAPS_API_KEY ?>&libraries=drawing,geometry&callback=ui.init" async defer></script>

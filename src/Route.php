@@ -21,10 +21,13 @@ class Route extends db_generic_model {
 		return json_decode($this->routes, true) ?: [[]];
 	}
 
-	static public function load( $secret ) {
-		if ( $secret ) {
-			return static::first(['secret' => $secret]);
+	/** @return self[] */
+	static public function load( array $secrets ) {
+		if ( $secrets = array_filter($secrets) ) {
+			return static::all(['secret' => $secrets]);
 		}
+
+		return [];
 	}
 
 	static public function save( $name, array $points ) {
@@ -37,6 +40,10 @@ class Route extends db_generic_model {
 			'routes' => json_encode($points),
 		]);
 		return $secret;
+	}
+
+	public function __toString() {
+		return (string) $this->name;
 	}
 
 }
