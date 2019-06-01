@@ -1,12 +1,12 @@
 <?php
 
-use rdx\grouter\Route;
+use rdx\grouter\Map;
 
 require __DIR__ . '/inc.bootstrap.php';
 
 if ( isset($_POST['points'], $_POST['name']) ) {
 	if ( $points = json_decode($_POST['points'], true) ) {
-		$secret = Route::save($_POST['name'], $points);
+		$secret = Map::save($_POST['name'], $points);
 
 		header('Location: ./?load=' . $secret);
 	}
@@ -16,7 +16,7 @@ if ( isset($_POST['points'], $_POST['name']) ) {
 	exit;
 }
 
-$routes = Route::load(explode(',', $_GET['load'] ?? ''));
+$routes = Map::load(explode(',', $_GET['load'] ?? ''));
 $screenshot = isset($_GET['screenshot']);
 
 ?>

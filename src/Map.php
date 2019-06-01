@@ -4,7 +4,7 @@ namespace rdx\grouter;
 
 use db_generic_model;
 
-class Route extends db_generic_model {
+class Map extends db_generic_model {
 
 	static public $_table = 'routes';
 
@@ -15,6 +15,10 @@ class Route extends db_generic_model {
 				'routes' => "[$this->points]",
 			]);
 		}
+	}
+
+	protected function get_created_on_label() {
+		return date('j M Y', $this->created_on);
 	}
 
 	protected function get_routes_array() {
