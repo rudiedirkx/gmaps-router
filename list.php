@@ -17,6 +17,9 @@ $maps = Map::all('1 ORDER BY created_on DESC');
 			</td>
 			<td><?= $map->created_on_label ?></td>
 			<td><?= count($map->routes_array) ?> routes</td>
+			<td>
+				<a href="gpx.php?id=<?= $map->secret ?>">gpx</a>
+			</td>
 		</tr>
 	<? endforeach ?>
 </table>
