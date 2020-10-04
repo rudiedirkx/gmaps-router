@@ -8,12 +8,10 @@ if ( isset($_POST['points'], $_POST['name']) ) {
 	if ( $points = json_decode($_POST['points'], true) ) {
 		$secret = Map::save($_POST['name'], $points);
 
-		header('Location: ./?load=' . $secret);
+		return do_redirect('index', ['load' => $secret]);
 	}
-	else {
-		header('Location: ./');
-	}
-	exit;
+
+	return do_redirect('index');
 }
 
 $routes = Map::load(explode(',', $_GET['load'] ?? ''));

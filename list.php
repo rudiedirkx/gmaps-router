@@ -16,8 +16,9 @@ $maps = Map::all('1 ORDER BY created_on DESC');
 				</a>
 			</td>
 			<td><?= $map->created_on_label ?></td>
-			<td><?= count($map->routes_array) ?> routes</td>
+			<td><?= count($map->routes_array) ?> routes, <?= array_sum(array_map('count', $map->routes_array)) ?> points</td>
 			<td>
+				<a href="merge.php?id=<?= $map->secret ?>">merge</a>
 				<a href="gpx.php?id=<?= $map->secret ?>">gpx</a>
 			</td>
 		</tr>

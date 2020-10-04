@@ -12,3 +12,15 @@ function rand_string($length = 12) {
 	}
 	return $string;
 }
+
+function get_url( $path, $query = [] ) {
+	$query = $query ? '?' . http_build_query($query) : '';
+	$path = $path ? $path . '.php' : basename($_SERVER['SCRIPT_NAME']);
+	return $path . $query;
+}
+
+function do_redirect( $path = null, $query = [] ) {
+	$url = get_url($path, $query);
+	header('Location: ' . $url);
+	exit;
+}
