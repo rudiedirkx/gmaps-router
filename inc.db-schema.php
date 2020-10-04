@@ -1,11 +1,11 @@
 <?php
 
 return [
-	'version' => 3,
+	'version' => 4,
 	'tables' => [
 		'routes' => [
 			'id' => ['pk' => true],
-			'secret',
+			'secret' => ['ci' => false],
 			'created_by_ip',
 			'created_on' => ['unsigned' => true],
 			'name',

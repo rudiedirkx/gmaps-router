@@ -6,7 +6,15 @@ require __DIR__ . '/inc.bootstrap.php';
 
 if ( isset($_POST['points'], $_POST['name']) ) {
 	if ( $points = json_decode($_POST['points'], true) ) {
-		$secret = Map::save($_POST['name'], $points);
+		if ( $exists = Map::first(['secret' => $_POST['name']]) ) {
+			$exists->update([
+				'routes' => json_encode($points),
+			]);
+			$secret = $exists->secret;
+		}
+		else {
+			$secret = Map::save($_POST['name'], $points);
+		}
 
 		return do_redirect('index', ['load' => $secret]);
 	}
@@ -15,6 +23,9 @@ if ( isset($_POST['points'], $_POST['name']) ) {
 }
 
 $routes = Map::load(explode(',', $_GET['load'] ?? ''));
+if ( isset($_GET['load']) && !count($routes) ) {
+	return do_redirect('index');
+}
 $screenshot = isset($_GET['screenshot']);
 
 ?>
@@ -102,6 +113,7 @@ body {
 	<button id="undo">Undo</button>
 	<!-- <button id="export">Export</button> -->
 	<button id="save" hidden>Save</button>
+	<button id="edit" hidden>Edit</button>
 	<div id="built-stats"></div>
 	<template>
 		<dl style="--color: COLOR">
@@ -116,13 +128,15 @@ body {
 
 <script>
 const COLORS = ['#ff0000', '#00ff00', '#0000ff', '#ff00ff', '#00ffff'];
+const STROKE_WEIGHT = 2;
 
 class UI {
-	constructor(el, points) {
+	constructor(el, points, editable) {
 		this.el = el;
 		this.map = null;
 		this.activeRoute = 0;
 		this.points = points;
+		this.editable = editable;
 		this.routes = null;
 		this.zIndex = 1;
 
@@ -158,7 +172,7 @@ class UI {
 			this.$$distance[i].textContent = distance;
 		});
 
-		var canSave = this.routes[0].points.length > 1;
+		var canSave = this.editable && this.routes[0].points.length > 1;
 		this.$save.hidden = !canSave;
 	}
 
@@ -181,6 +195,9 @@ class UI {
 
 		[].forEach.call(document.querySelectorAll('.selected'), el => el.classList.remove('selected'));
 		this.$$stats[this.activeRoute].classList.add('selected');
+
+		this.routes.forEach(r => r.line.set('strokeWeight', STROKE_WEIGHT));
+		this.routes[this.activeRoute].line.set('strokeWeight', 2*STROKE_WEIGHT);
 
 		this.routes[this.activeRoute].line.set('zIndex', ++this.zIndex);
 	}
@@ -230,8 +247,10 @@ class UI {
 		this.addRoute(this.makeRoute(points));
 	}
 
-	remember() {
-		sessionStorage.points = JSON.stringify(this.routes.map(route => route.points));
+	remember(force = false) {
+		if (force || this.editable) {
+			sessionStorage.points = JSON.stringify(this.routes.map(route => route.points));
+		}
 	}
 
 	listen() {
@@ -268,9 +287,10 @@ class UI {
 		this.$builtStats = document.querySelector('#built-stats');
 		this.$addRoute = document.querySelector('#add-route');
 		this.$save = document.querySelector('#save');
+		this.$edit = document.querySelector('#edit');
 		this.$output = document.querySelector('#output');
 
-		console.log(this);
+		this.$edit.hidden = this.editable;
 
 		this.$undo.onclick = e => {
 			this.undoPoint();
@@ -293,6 +313,12 @@ class UI {
 			e.preventDefault();
 
 			this.addNewRoute();
+		};
+
+		this.$edit.onclick = e => {
+			e.preventDefault();
+			this.remember(true);
+			location.href = '?';
 		};
 
 		this.$save.onclick = e => {
@@ -356,7 +382,7 @@ class Route {
 			geodesic: true,
 			strokeColor: this.color,
 			strokeOpacity: 1.0,
-			strokeWeight: 2,
+			strokeWeight: STROKE_WEIGHT,
 		});
 	}
 
@@ -389,7 +415,8 @@ class Route {
 
 var ui = new UI(
 	document.querySelector('#map'),
-	<?= $routes ? json_encode(call_user_func_array('array_merge', array_column($routes, 'routes_array'))) : "JSON.parse(sessionStorage.points || '[[]]')" ?>
+	<?= $routes ? json_encode(call_user_func_array('array_merge', array_column($routes, 'routes_array'))) : "JSON.parse(sessionStorage.points || '[[]]')" ?>,
+	<?= json_encode(!$routes) ?>
 );
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=<?= ROUTER_GMAPS_API_KEY ?>&libraries=drawing,geometry&callback=ui.init" async defer></script>
